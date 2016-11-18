@@ -195,5 +195,64 @@ function deleteFromMilestone(task,callback){
 }
 
 function doVideoCallByTask(task_id,callback){
+    getTaskInfo(task_id,function(err,data){
+
+    }
+}
+
+
+function getUserIdByTask(task,callback){
+    //res.result.d[296].d[0][0]
+    getTaskInfo(task,function(err,data){
+        if(err) callback(err);
+        callback(false,data.result.d[296].d[0][0])
+    })      
+}
+
+function testUserIdByTask(task){
+    getUserIdByTask(task,function(err,task) { console.log(task)});
+}
+
+
+// Метод для получения информации о задаче по ей номеру
+function getTaskInfo(task,callback){
+    const TASK_ID_INDEX = 13
+    if(Array.isArray(task)) task = task[TASK_ID_INDEX];
+
+    var url = getDomain()+'service/';
+    var body = {"jsonrpc":"2.0","protocol":4,"method":"СлужЗап.Прочитать","params":{"ИдО":task,"ИмяМетода":"СлужЗап.Список"},"id":1}
+    
+    var headers = [
+        {key:'x-calledmethod',value:'SlujZap.Prochitat'},
+        {key:'x-originalmethodname',value:'0KHQu9GD0LbQl9Cw0L8u0J/RgNC+0YfQuNGC0LDRgtGM'},
+        {key:'content-type',value:'application/json; charset=utf-8'}
+    ];
+    
+    request('POST',url,body,headers,function(err,response){
+    if(callback){
+        if(err) callback(err);
+        callback(false,response);
+    }
+    });
+}
+
+/*function testTaskInfo(taskid){
+    getTaskInfo(taskid, function(err,data){ console.log(data)});
+}*/
+
+function createGUID() {
+    var a = 0
+      , b = 0
+      , c = (new Date).getTime().toString(16);
+    c = "000000000000".substr(0, 12 - c.length) + c;
+    var d = function() {
+        return (c.substring(b, b += a++ % 2 ? 2 : 1) + (65536 * (1 + Math.random()) | 0).toString(16)).substring(0, 4)
+    }
     ;
+    return d() + d() + "-" + d() + "-" + d() + "-" + d() + "-" + d() + d() + d();
+}
+
+function callUser(userId){
+    var url = '/webrtc/static/window.html#room=' + createGUID() + '&toInvite={"faceId":'+userId+',"clientId":3}&video=true';
+    window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
 }
