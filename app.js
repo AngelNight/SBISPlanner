@@ -19,10 +19,11 @@ chrome.runtime.onMessage.addListener(function(request,sender,callback2) {
 });
 
 
-var bird = document.getElementById('logoPtica');
+var bird = document.getElementById('logoCompany');
 if(bird){
    bird.className += 'bird icon-32 icon-Microphone icon-primary';
    bird.title = 'SBIS Planner';
+   document.getElementById('logoCompanyLink').href="#";
 
    // Google Web Speech API
    var rec = new webkitSpeechRecognition(),
