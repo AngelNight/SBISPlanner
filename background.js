@@ -171,3 +171,29 @@ function getСonference(task_array,callback){
         })
     );
 }
+
+// Функция для вынесения из вехи. На вход может принимать либо id задачи, либо массив задачи (id достанет сама)
+function deleteFromMilestone(task,callback){
+    const TASK_ID_INDEX = 13
+    if(Array.isArray(task)) task = task[TASK_ID_INDEX]
+    var url = getDomain()+'service/';
+    var body = {"jsonrpc":"2.0","protocol":4,"method":"Веха.ЗаписатьВехуДокумента",
+                "params":{"ДокументСледствие":task,"Вехи":[],"Добавить":false},"id":1};
+    
+    var headers = [
+        {key:'x-calledmethod',value:'Veha.ZapisatVehuDokumenta'},
+        {key:'x-originalmethodname',value:'0JLQtdGF0LAu0JfQsNC/0LjRgdCw0YLRjNCS0LXRhdGD0JTQvtC60YPQvNC10L3RgtCw'},
+        {key:'content-type',value:'application/json; charset=utf-8'}
+    ];
+    
+    request('POST',url,body,headers,function(err,response){
+    if(callback){
+        if(err) callback(err);
+        callback(false,response);
+    }
+    });
+}
+
+function doVideoCallByTask(task_id,callback){
+    ;
+}
