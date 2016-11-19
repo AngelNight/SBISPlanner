@@ -1,4 +1,4 @@
-
+localStorage.setItem("CALENDAR_IDS", [])
 // FirstBy - a little lib to sort arrays by multiply fields
 firstBy = (function () {
 
@@ -101,6 +101,14 @@ function sortTasks(err, tasks, callback) {
                 return ( v1[PRIORITY_INDEX] > v2[PRIORITY_INDEX] ) ? -1 :
                     ( v1[PRIORITY_INDEX] < v2[PRIORITY_INDEX] ) ? 1 : 0;
 
+            }).thenBy(function sortByImportance(v1, v2) {
+                const IMPORTANCE_INDEX = 74;
+                var v1_score = 0, v2_score = 0;
+                [60, 50, 40, 30, 20, 10].forEach(function countScores(item, index) {
+                    v1_score += (v1[IMPORTANCE_INDEX] == null) ? 0 : item * v1[IMPORTANCE_INDEX][index];
+                    v2_score += (v2[IMPORTANCE_INDEX] == null) ? 0 : item * v2[IMPORTANCE_INDEX][index];
+                })
+                return v1_score - v2_score;
             })
         )
     );
@@ -131,35 +139,27 @@ function formatDate(date) {
 
 function createDayList(err, tasks, date) {
     cleanUpCalendar();
-    CALENDAR_IDS.forEach(function (item) {
-        deleteTaskFromCalendar(item);
-    })
 
-    CALENDAR_IDS = [];
+    var store = (localStorage.getItem("CALENDAR_IDS") == "")? []: localStorage.getItem("CALENDAR_IDS").split(",").map(function (el) {
+        return parseInt(el);
+    });
+
+    store.forEach(function (item) {
+        deleteTaskFromCalendar(item);
+    });
+
+    localStorage.setItem("CALENDAR_IDS", store);
 
     var startDate = (date == null) ? new Date() : date;
     var day = formatDate(startDate);
     if (err) console.log(err);
-    var hoursStart = 9;
-    var hoursEnd = 10;
+    var hoursStart = startDate.getHours();
+    var hoursEnd = hoursStart + 1;
     var minutesStart = 0;
     var minutesEnd = 0;
     GLOBAL_TASKS = [];
     tasks.forEach(function (task, index) {
-        var stringStartTime = ((hoursStart < 10 ) ? "0" + hoursStart : hoursStart.toString()) + ":" +
-            ((minutesStart < 10 ) ? "0" + minutesStart : minutesStart.toString()) + ":00+03";
-
-        var stringEndTime = ((hoursEnd < 10 ) ? "0" + hoursEnd : hoursEnd.toString()) + ":" +
-            ((minutesEnd < 10 ) ? "0" + minutesEnd : minutesEnd.toString()) + ":00+03";
-
-        addTasksInCalendar(task[1], formatDate(day), stringStartTime, stringEndTime);
-
-        GLOBAL_TASKS.push({task:task, start:stringStartTime, end:stringEndTime});
-
-        hoursStart = hoursEnd;
-        hoursEnd++;
-
-        if (hoursEnd > 17) {
+        if (hoursEnd > 17 || hoursStart < 9) {
             startDate.setMonth(parseInt(day.split("-")[1]) - 1, parseInt(day.split("-")[2]) + 1);
             day = formatDate(startDate);
             hoursStart = 9;
@@ -168,6 +168,18 @@ function createDayList(err, tasks, date) {
             minutesEnd = 0;
         }
 
+        var stringStartTime = ((hoursStart < 10 ) ? "0" + hoursStart : hoursStart.toString()) + ":" +
+            ((minutesStart < 10 ) ? "0" + minutesStart : minutesStart.toString()) + ":00+03";
+
+        var stringEndTime = ((hoursEnd < 10 ) ? "0" + hoursEnd : hoursEnd.toString()) + ":" +
+            ((minutesEnd < 10 ) ? "0" + minutesEnd : minutesEnd.toString()) + ":00+03";
+
+        addTasksInCalendar(task[1], formatDate(day), stringStartTime, stringEndTime);
+
+        GLOBAL_TASKS.push({task: task, start: stringStartTime, end: stringEndTime});
+
+        hoursStart = hoursEnd;
+        hoursEnd++;
         console.log(day)
     })
 }

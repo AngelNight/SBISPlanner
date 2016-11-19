@@ -1,5 +1,4 @@
-
-function addTasksInCalendar(taskId ,date, startDate, endDate) {
+function addTasksInCalendar(taskId, date, startDate, endDate) {
     var arrayDataTask_D = [];
     var arrayDataTask_S = [];
 
@@ -71,8 +70,12 @@ function addTasksInCalendar(taskId ,date, startDate, endDate) {
                     },
                     protocol: 4,
                 }), success: function (res) {
-                        CALENDAR_IDS.push(res.result)
-                        console.log(res.result);
+                    var store = (localStorage.getItem("CALENDAR_IDS") == "")? []: localStorage.getItem("CALENDAR_IDS").split(",").map(function (el) {
+                        return parseInt(el);
+                    });
+                    store.push(res.result);
+                    console.log(res.result);
+                    localStorage.setItem("CALENDAR_IDS", store);
                 }, dataType: "json", type: "post", contentType: 'application/json; charset=utf-8'
             })
 

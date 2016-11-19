@@ -18,7 +18,6 @@ chrome.runtime.onMessage.addListener(function (utterance, sender, callback) {
 
 });
 
-var CALENDAR_IDS = [];
 var GLOBAL_TASKS = [];
 
 function getDomain(){
