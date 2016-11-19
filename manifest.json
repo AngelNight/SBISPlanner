@@ -20,15 +20,16 @@
             "help/jquery-1.11.3.min.js",
             "SpeechHandler.js",
             "background.js",
-            "AddTasksInCalendar.js",
+            "TasksCalendarAccessor.js",
+            "Sorter.js",
             "app.js",
-            "background.js",
             "Restructuring.js"
          ]
       }
    ],
    "background": {
     "scripts": [
+       "background.js"
     ]
   },
    "permissions": [
