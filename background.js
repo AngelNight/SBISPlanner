@@ -194,10 +194,8 @@ function deleteFromMilestone(task,callback){
     });
 }
 
-function doVideoCallByTask(task_id,callback){
-    getTaskInfo(task_id,function(err,data){
-
-    }
+function doVideoCallByTask(task){
+    getUserIdByTask(task,function(err,task) { callUser(task)});
 }
 
 
@@ -239,6 +237,58 @@ function getTaskInfo(task,callback){
 /*function testTaskInfo(taskid){
     getTaskInfo(taskid, function(err,data){ console.log(data)});
 }*/
+
+
+// Функция для заркрытия таска. Закрытие происходит в 2 этапа - на первом этапе мы меняем статус, а на второй присваиваем комментарий
+// Тестовый ID - 3516734
+// Пока не работает (!)
+function closeTask(task_id,comment,callback){
+    // Разобраться в назначии некоторых полей ибо под другой учёткой скорее всего перестанет работать (есть фильтры по папке и юзеру)
+    var url = getDomain()+'service/';
+    var body = {"jsonrpc":"2.0","protocol":4,"method":"СлужЗап.ВыполнитьДействие",
+    "params":{"Документ":{"s":[{"n":"Идентификатор","t":"Строка"},
+    {"n":"ПервичныйКлюч","t":"Число целое"},
+    {"n":"НашаОрганизация","t":"Запись"},
+    {"n":"Контрагент","t":"Запись"},{"n":"Подразделение","t":"Запись"},
+    {"n":"Ответственный","t":"Запись"},{"n":"Этап","t":"Выборка"},{"n":"Направление","t":"Строка"},{"n":"Редакция","t":"Выборка"}],
+    "d":[task_id,task_id,null,null,
+    {"s":[{"n":"Название","t":"Строка"},{"n":"Идентификатор","t":"Строка"},{"n":"ПервичныйКлюч","t":"Строка"}],"f":1,
+    "d":["Папка для Демо",null,"15432999"],"_type":"record"},
+    {"s":[{"n":"Фамилия","t":"Строка"},
+    {"n":"Имя","t":"Строка"},{"n":"Отчество","t":"Строка"},
+    {"n":"Идентификатор","t":"Строка"},{"n":"СНИЛС","t":"Строка"},
+    {"n":"ЧастноеЛицо","t":"Логическое"}],"f":2,"d":["Демо","Демо","","733910",null,null],"_type":"record"},
+    {"s":[{"n":"Название","t":"Строка"},{"n":"Идентификатор","t":"Строка"},
+    {"n":"Действие","t":"Выборка"},{"n":"ПервичныйКлюч","t":"Строка"},{"n":"Служебный","t":"Логическое"},
+    {"n":"Вложение","t":"Выборка"},{"n":"Исполнитель","t":"Запись"}],"d":[["Выполнение","0eea1d4f-2360-45c8-b9bc-548ed2bba08c",
+    {"s":[{"n":"Название","t":"Строка"},{"n":"ТребуетПодписания","t":"Логическое"},{"n":"ТребуетРасшифровки","t":"Логическое"},
+    {"n":"ТребуетКомментария","t":"Логическое"},{"n":"Комментарий","t":"Строка"},{"n":"Сертификат","t":"Выборка"},
+    {"n":"ТипПодписи","t":"Строка"},{"n":"СледующийЭтап","t":"Выборка"}],
+    "d":[["Выполнено",false,false,false,"Комментарий для полнения",null,null,null]],"_type":"recordset","_mustRevive":true},"5990189",false,null,null]],
+    "_type":"recordset","_mustRevive":true},"Внутренний",{"s":[{"n":"Идентификатор","t":"Строка"},{"n":"ПримечаниеИС","t":"Строка"},
+    {"n":"ДатаВремя","t":"Дата и время"},{"n":"Актуален","t":"Логическое"}],
+    "f":5,"d":[["c3ccfeb3-30fd-4efd-8586-e03b25b9f45d",null,"2016-11-19 02:38:56.276175+03",false]],
+    "_type":"recordset"}],"_key":task_id,"_mustRevive":true,"_type":"record"}},"id":1};
+
+    var headers = [
+        {key:'x-calledmethod',value:'SlujZap.VypolnitDejstvie'},
+        {key:'x-originalmethodname',value:'0KHQu9GD0LbQl9Cw0L8u0JLRi9C/0L7Qu9C90LjRgtGM0JTQtdC50YHRgtCy0LjQtQ=='},
+        {key:'content-type',value:'application/json; charset=utf-8'}
+    ];
+    
+    request('POST',url,body,headers,function(err,response){
+    if(callback){
+        if(err) callback(err);
+        callback(false,response);
+    }
+    });
+
+
+}
+
+function testCloseTask(task){
+    closeTask(3516734,null,function(err,data) {console.log(data);});
+}
 
 function createGUID() {
     var a = 0
