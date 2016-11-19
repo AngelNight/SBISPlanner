@@ -17,6 +17,7 @@ var timerId = setInterval(function() {
                     }
                     //пришла новая задача!!!!!!! Saw
                     //createDayList();
+                    doSort();
                     alert( "!!!!!!!!!!!!!!NEW TASK!!!!!!!!!!!!" );
                 }
             }

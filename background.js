@@ -155,7 +155,7 @@ function sortTasks(err, tasks, callback) {
     );
 }
 
-var GLOBAL_TASKS =[];
+var GLOBAL_TASKS = [];
 
 // Пример сортировки данных и вывода их в консоль.
 function doSort() {
@@ -180,6 +180,7 @@ function formatDate(date) {
 }
 
 function createDayList(err, tasks, date) {
+
     var startDate = (date == null) ? new Date() : date;
     var day = formatDate(startDate);
     if (err) console.log(err);
@@ -189,7 +190,6 @@ function createDayList(err, tasks, date) {
     var minutesEnd = 0;
 
     tasks.forEach(function (task, index) {
-
         var stringStartTime = ((hoursStart < 10 ) ? "0" + hoursStart : hoursStart.toString()) + ":" +
             ((minutesStart < 10 ) ? "0" + minutesStart : minutesStart.toString()) + ":00+03";
 
