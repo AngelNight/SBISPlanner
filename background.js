@@ -18,54 +18,6 @@ chrome.runtime.onMessage.addListener(function (utterance, sender, callback) {
 
 });
 
-// FirstBy - a little lib to sort arrays by multiply fields
-firstBy = (function () {
-
-    function identity(v) {
-        return v;
-    }
-
-    function ignoreCase(v) {
-        return typeof(v) === "string" ? v.toLowerCase() : v;
-    }
-
-    function makeCompareFunction(f, opt) {
-        opt = typeof(opt) === "number" ? {direction: opt} : opt || {};
-        if (typeof(f) != "function") {
-            var prop = f;
-            // make unary function
-            f = function (v1) {
-                return !!v1[prop] ? v1[prop] : "";
-            }
-        }
-        if (f.length === 1) {
-            // f is a unary function mapping a single item to its sort score
-            var uf = f;
-            var preprocess = opt.ignoreCase ? ignoreCase : identity;
-            f = function (v1, v2) {
-                return preprocess(uf(v1)) < preprocess(uf(v2)) ? -1 : preprocess(uf(v1)) > preprocess(uf(v2)) ? 1 : 0;
-            }
-        }
-        if (opt.direction === -1)return function (v1, v2) {
-            return -f(v1, v2)
-        };
-        return f;
-    }
-
-    function tb(func, opt) {
-        var x = typeof(this) == "function" ? this : false;
-        var y = makeCompareFunction(func, opt);
-        var f = x ? function (a, b) {
-            return x(a, b) || y(a, b);
-        }
-            : y;
-        f.thenBy = tb;
-        return f;
-    }
-
-    return tb;
-})();
-
 function getDomain() {
     return 'https://' + window.location.hostname + '/';
 }
@@ -160,42 +112,51 @@ function doSort() {
     getTasks(function (err, tasks) {
         sortTasks(err, tasks,
             function (err, sorted_array) {
-                createDayList(err, sorted_array);
+                createDayList(err, sorted_array, null);
             })
     })
 }
 
-function createDayList(err, tasks) {
-    const DEADLINE_INDEX = 2;
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+function createDayList(err, tasks, startDate) {
+    if (startDate == null)
+        startDate = new Date();
     if (err) console.log(err);
     var hoursStart = 9;
     var hoursEnd = 10;
     var minutesStart = 0;
     var minutesEnd = 0;
-    var BreakException = {};
 
-    try {
-        tasks.forEach(function (task, index) {
+    tasks.forEach(function (task, index) {
 
-            var stringStartTime = ((hoursStart < 10 ) ? "0" + hoursStart : hoursStart.toString()) + ":" +
-                ((minutesStart < 10 ) ? "0" + minutesStart : minutesStart.toString()) + ":00+03";
+        var stringStartTime = ((hoursStart < 10 ) ? "0" + hoursStart : hoursStart.toString()) + ":" +
+            ((minutesStart < 10 ) ? "0" + minutesStart : minutesStart.toString()) + ":00+03";
 
-            var stringEndTime = ((hoursEnd < 10 ) ? "0" + hoursEnd : hoursEnd.toString()) + ":" +
-                ((minutesEnd < 10 ) ? "0" + minutesEnd : minutesEnd.toString()) + ":00+03";
+        var stringEndTime = ((hoursEnd < 10 ) ? "0" + hoursEnd : hoursEnd.toString()) + ":" +
+            ((minutesEnd < 10 ) ? "0" + minutesEnd : minutesEnd.toString()) + ":00+03";
 
-            console.log(task[DEADLINE_INDEX], task);
+        addTasksInCalendar(task[1], formatDate(startDate), stringStartTime, stringEndTime);
 
-            addTasksInCalendar(task[DEADLINE_INDEX], stringStartTime, stringEndTime);
+        hoursStart = hoursEnd;
+        hoursEnd++;
 
+        if (hoursEnd > 17) {
+            startDate.setMonth(startDate.getMonth() + 1)
+        };
 
-            hoursStart = hoursEnd;
-            hoursEnd++;
-
-            if (hoursEnd > 16) throw BreakException;
-        })
-    } catch (e) {
-        if (e !== BreakException) throw e;
-    }
+        console.log(startDate)
+    })
 }
 
 function consoleTaskInfo(one_task_array) {

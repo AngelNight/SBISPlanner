@@ -1,4 +1,4 @@
-function addTasksInCalendar(date, startDate, endDate) {
+function addTasksInCalendar(taskId ,date, startDate, endDate) {
     var arrayDataTask_D = [];
     var arrayDataTask_S = [];
 
@@ -30,17 +30,18 @@ function addTasksInCalendar(date, startDate, endDate) {
             arrayDataTask_D[16] = startDate;
             arrayDataTask_D[17] = endDate;
 
+            arrayDataTask_D[31] = taskId;
             arrayDataTask_D[21] = getTimeInterval(startDate, endDate)
             arrayDataTask_D[24] = false;
             arrayDataTask_D[25] = 121;
             arrayDataTask_D[30] = 121;
             arrayDataTask_D[34] = 121;
-            arrayDataTask_D[48] = createGUID();//taskGUIUserCalendar; //КалендарьПользователя.Идентификатор
+            arrayDataTask_D[48] = "4872b577-d5b7-48a3-8570-d0a4933cbc2c";//taskGUIUserCalendar; //КалендарьПользователя.Идентификатор
             arrayDataTask_D[54] = false;
             arrayDataTask_D[56] = false;
-            arrayDataTask_D[80] = createGUID();//"587d3dd2-4c81-47ab-a1a1-713eb4a19120"; //Документ.ИдентификаторДокумента
+            arrayDataTask_D[80] = "4872b577-d5b7-48a3-8570-d0a4933cbc2c";//"587d3dd2-4c81-47ab-a1a1-713eb4a19120"; //Документ.ИдентификаторДокумента
             arrayDataTask_D[82] = false;
-            arrayDataTask_D[180] = createGUID();//taskGUIKindWork;//"72d4ce30-9ec2-4e0d-bd52-9ec45ea600a4"; //ВидРаботы.Идентификатор
+            arrayDataTask_D[180] = "4872b577-d5b7-48a3-8570-d0a4933cbc2c";//taskGUIKindWork;//"72d4ce30-9ec2-4e0d-bd52-9ec45ea600a4"; //ВидРаботы.Идентификатор
 
 
             var dateString = {t: "Строка", n: "DataString"};
