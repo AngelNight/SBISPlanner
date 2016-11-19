@@ -13,12 +13,6 @@ function Say(utterance, callback) {
 
 }
 
-chrome.runtime.onMessage.addListener(function(request,sender,callback2) {
-    console.log('start recording');
-    if(!rec.isRunning) rec.start();
-});
-
-
 var bird = document.getElementById('logoCompany');
 if(bird){
    bird.className += 'bird icon-32 icon-Microphone icon-primary';

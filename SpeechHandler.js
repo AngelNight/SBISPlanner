@@ -1,7 +1,3 @@
-
-console.log("ВЫВОЛ ИЗ ПЛАГИНА");
-console.log(window);
-
 var DEBUG = 0,
     allow = true;
 // ключевые фразы помеченные знаком /*!DANGER!*/
@@ -19,7 +15,8 @@ var SpeechHandler = function() {
       _handlers : {
          'добавить задачу': function (text){
              if (localStorage['isTired'] == 0){
-                 addTask(text);
+                notifyCreateComplite();
+                 //addTask(text);
              } else {
                  localStorage['isTired'] = 0;
                  Say("Я слишком устала. Может быть позже");
@@ -205,7 +202,6 @@ function callUser(userId){
     window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
 }
 
-
 // XHR wrapper to do some request
 function request(method,url,body,headers,callback){
     var xhr = new XMLHttpRequest();
@@ -275,7 +271,6 @@ function getEmployee(name,callback) {
     });
 };
 
-
 function addConference(user_name,theme){
     //var endTime = startTime + 30 мин
     const MINUTES = 30;
@@ -324,7 +319,6 @@ function createConference(callback){
         callback(null,response.result.d[0]) // Скорее всего id созданной конференции.
     });
 }
-
 
 function addUserToConference(conferenceid,userid,callback){
     var url = getDomain() + 'service/';
@@ -379,6 +373,126 @@ function saveConference(confreneId,startTime,endTime,theme,callback){
     });
 }
 
+function notifyCreateComplite() {
+    rec.isRunning = false;
+    rec.stop();
+    Say("Я создала для тебя календарь");
+    var url = getDomain() + pageUrls['календарь'];
+    window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
+
+};
+
+function doNextTask(task_array){
+    rec.isRunning = false;
+    rec.stop();
+    const MAX_TASK_LENGTH = 80;
+    var string = "Через пять минут приступите к задаче ";
+    string += task_array[4].trim().replaceAll(/<[^>]*>/, "").slice(0,MAX_TASK_LENGTH);
+    Say(string);
+    workWithNextTask();
+};
+
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
+
+function workWithNextTask() {
+    var oldSpeachHandler = SpeechHandler;
+
+    SpeechHandler = function () {
+        return {
+            _handlers: {
+                'приступить': function () {
+                    Say('Приступайте к решению задачи');
+                    SpeechHandler = oldSpeachHandler;
+                },
+                'отложить': function () {
+                    Say('Задача отложена');
+                    createDayList();
+                    SpeechHandler = oldSpeachHandler;
+                }
+
+            },
+            _log: function (text) {
+                console.log(text);
+            },
+
+            parse: function (text) {
+                text = (text.toLowerCase()).trim();
+
+                console.log(text);
+                if (DEBUG) Say(text);
+
+                //if(!allow) return false;
+
+                for (var handlerName in this._handlers) {
+                    if (text.indexOf(handlerName) + 1) {
+                        this._log(handlerName);
+                        this._handlers[handlerName].call(this, text.replace(handlerName, '').trim());
+                        break;
+                    }
+                }
+            }
+        }
+
+
+    }
+}
+
+function workWithCurrentTask(task_array) {
+    var taskId = task_array[13];
+    var oldSpeachHandler = SpeechHandler;
+
+    SpeechHandler = function () {
+        return {
+            _handlers: {
+                'сделал': function () {
+                    Say('Отличная работа!');
+                    closeTask(taskId, "Готово, не требуется пересборка", "Задача закрыта");
+                    createDayList();
+                    SpeechHandler = oldSpeachHandler;
+                },
+                'протухло': function () {
+                    Say('Задача отложена');
+                    closeTask(taskId, "Не делаем", "Необходимость задачи отпала");
+                    createDayList();
+                    SpeechHandler = oldSpeachHandler;
+                },
+                'опоздал': function () {
+                    Say('Добавлено 30 минут');
+                    createDayList();
+                    SpeechHandler = oldSpeachHandler;
+                }
+
+            },
+            _log: function (text) {
+                console.log(text);
+            },
+
+            parse: function (text) {
+                text = (text.toLowerCase()).trim();
+
+                console.log(text);
+                if (DEBUG) Say(text);
+
+                //if(!allow) return false;
+
+                for (var handlerName in this._handlers) {
+                    if (text.indexOf(handlerName) + 1) {
+                        this._log(handlerName);
+                        this._handlers[handlerName].call(this, text.replace(handlerName, '').trim());
+                        break;
+                    }
+                }
+            }
+        }
+
+
+    }
+}
+//function(task,"Через пять минут приступите к задаче ")
+
 function closeTask(id, type, comment) {
     var id = id;
     var type = type;
@@ -396,12 +510,12 @@ function closeTask(id, type, comment) {
                 "s": [{"n": "Идентификатор", "t": "Строка"}, {"n": "ПервичныйКлюч", "t": "Число целое"}, {"n": "Этап", "t": "Выборка"}],
                 "d": [id + "", id,
                 {
-                    "s": [ 
+                    "s": [
                         {"n": "Действие","t": "Выборка"}
                         ],
-                    "d": [[ 
-                        {"s": [ 
-                                {"n": "Название", "t": "Строка"}, 
+                    "d": [[
+                        {"s": [
+                                {"n": "Название", "t": "Строка"},
                                 {"n": "Комментарий", "t": "Строка"}
                               ],
                           "d": [[type, null]],
