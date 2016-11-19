@@ -157,6 +157,8 @@ function createDayList(err, tasks, date) {
     var hoursEnd = hoursStart + 1;
     var minutesStart = 0;
     var minutesEnd = 0;
+    var rest = 0;
+
     GLOBAL_TASKS = [];
     tasks.forEach(function (task, index) {
         if (hoursEnd > 17 || hoursStart < 9) {
@@ -178,8 +180,19 @@ function createDayList(err, tasks, date) {
 
         GLOBAL_TASKS.push({task: task, start: stringStartTime, end: stringEndTime});
 
-        hoursStart = hoursEnd;
+        hoursStart++;
         hoursEnd++;
+        rest++;
+
+        /**
+         * Генерация перерыва после двух тяжелых часов работы.
+         */
+        if (rest == 4) {
+            console.log("отдых c " + hoursStart + " до " + hoursEnd);
+            rest = 0;
+            hoursStart++;
+            hoursEnd++;
+        }
         console.log(day)
     })
 }
