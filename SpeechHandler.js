@@ -1,3 +1,7 @@
+
+console.log("ВЫВОЛ ИЗ ПЛАГИНА");
+console.log(window);
+
 var DEBUG = 0,
     allow = true;
 // ключевые фразы помеченные знаком /*!DANGER!*/
@@ -256,16 +260,121 @@ function getEmployee(name,callback) {
     request('POST',url,body,headers,function(err,response){
         if(err) console.err(response);
         console.log(response);
-        if (response.result.n) {
-            console.log(name + ' найден.');
-            callback(null,response.result);
-            //Say('Сотрудник ' + name + ' найден');
-            //return response.name;
+        if (Array.isArray(response.result.d)) {
+            if(response.result.d.length == 0) callback(response.result,null);
+            //console.log(name + ' найден.');
+            var curUser = response.result.d.filter(function(item) { return item[3] != true;})[0];
+            callback(null,curUser);
+
         } else {
-            console.log('Сотрудник не найден.');
+            //console.log('Сотрудник не найден.');
             callback(response.result);
             //Say('Сотрудник не найден.');
             //return null;
         }
     });
 };
+
+
+function addConference(user_name,theme){
+    //var endTime = startTime + 30 мин
+    const MINUTES = 30;
+    var curDate = new Date();
+    var startTime = curDate.toLocaleTimeString();
+    var endTime = new Date(curDate.getTime()+1000*60*MINUTES).toLocaleTimeString();
+
+
+
+    // documentID
+    createConference(function(err,conference_id){
+        const USER_ID_INDEX = 7;
+        if(err) console.log(err);
+        getEmployee(user_name, 
+            function(err,emplyee_data){
+                var userID;
+                if(Array.isArray(emplyee_data)) userID = emplyee_data[USER_ID_INDEX];
+                else userID = emplyee_data;
+                addUserToConference(conference_id,userID,function(err,addUserInfo){
+                    saveConference(conference_id,startTime,endTime,theme,function(err,data) { console.log (data)})
+                })
+            }
+        );
+
+    })
+    
+}
+
+// Функция создаёт пустую задачу для заполнения
+function createConference(callback){
+    var url = getDomain() + 'service/';
+
+    var body = {"jsonrpc":"2.0","protocol":4,"method":"Совещание.Создать",
+                "params":{"Фильтр":{"d":[true,"6a5f3cd0-0a72-4ceb-b4ed-1081250056db",null,"2040","js!SBIS3.Meetings.MeetingDialog","Совещание"],
+                "s":[{"n":"ВызовИзБраузера","t":"Логическое"},{"n":"ИдРегламента","t":"Строка"},{"n":"Регламент","t":"Строка"},{"n":"ТипДокумента","t":"Строка"},
+                {"n":"ТипДокумента.ИмяДиалога","t":"Строка"},{"n":"ТипДокумента.ИмяОбъекта","t":"Строка"}]},"ИмяМетода":"Совещание.Список"},"id":1};
+
+    var headers = [
+        {key:'x-calledmethod',value:'Soveschanie.Sozdat'},
+        {key:'x-originalmethodname',value:'0KHQvtCy0LXRidCw0L3QuNC1LtCh0L7Qt9C00LDRgtGM'},
+        {key:'content-type',value:'application/json; charset=utf-8'}
+    ];
+ 
+    request('POST',url,body,headers,function(err,response){
+        console.log(response);
+        callback(null,response.result.d[0]) // Скорее всего id созданной конференции.
+    });
+}
+
+
+function addUserToConference(conferenceid,userid,callback){
+    var url = getDomain() + 'service/';
+    var body = {"jsonrpc":"2.0","protocol":4,"method":"Совещание.СоздатьУчастниковСовещания",
+                "params":{"ИдСовещания":conferenceid,
+                "Участники":[userid],
+                "Тип":1,"Дата":"2016-11-19"
+                },"id":1
+    };
+
+    var headers = [
+        {key:'x-calledmethod',value:'Soveschanie.Sozdat'},
+        {key:'x-originalmethodname',value:'0KHQvtCy0LXRidCw0L3QuNC1LtCh0L7Qt9C00LDRgtGM'},
+        {key:'content-type',value:'application/json; charset=utf-8'}
+    ];
+
+    request('POST',url,body,headers,function(err,response){
+        callback(null,response); // Скорее всего id созданной конференции.
+    });
+}
+
+function saveConference(confreneId,startTime,endTime,theme,callback){
+        var url = getDomain() + 'service/';
+        var body = {"jsonrpc":"2.0","protocol":4,
+        "method":"Совещание.Записать",
+        "params":{"Запись":{"s":[{"n":"@Документ","t":"Число целое"},
+        {"n":"Раздел","t":"Идентификатор","s":"Иерархия"},{"n":"Раздел@","t":"Логическое","s":"Иерархия"},
+        {"n":"Раздел$","t":"Логическое","s":"Иерархия"},{"n":"Совещание.Тема","t":"Текст"},
+        {"n":"Совещание.ВремяНач","t":"Время"},{"n":"Совещание.ВремяКнц","t":"Время"},
+        {"n":"ТипДокумента.Раздел","t":"Идентификатор","s":"Иерархия"},
+        {"n":"ТипДокумента.Раздел@","t":"Логическое","s":"Иерархия"},
+        {"n":"ТипДокумента.Раздел$","t":"Логическое","s":"Иерархия"},
+        {"n":"Подразделение.Раздел","t":"Идентификатор","s":"Иерархия"},
+        {"n":"Подразделение.Раздел@","t":"Логическое","s":"Иерархия"},
+        {"n":"Подразделение.Раздел$","t":"Логическое","s":"Иерархия"},
+        {"n":"Контрагент.Раздел","t":"Идентификатор","s":"Иерархия"},
+        {"n":"Контрагент.Раздел@","t":"Логическое","s":"Иерархия"},
+        {"n":"Контрагент.Раздел$","t":"Логическое","s":"Иерархия"},
+        {"n":"ДокументНашаОрганизация.Контрагент.Раздел","t":"Идентификатор","s":"Иерархия"},
+        {"n":"ДокументНашаОрганизация.Контрагент.Раздел@","t":"Логическое","s":"Иерархия"},
+        {"n":"ДокументНашаОрганизация.Контрагент.Раздел$","t":"Логическое","s":"Иерархия"}],
+        "d":[confreneId,[null],null,null,"<p>"+theme+"</p>",startTime,endTime,
+        [2038],false,null,[199],true,null,[null],null,null,[null],null,null],"_mustRevive":true,"_type":"record","_key":confreneId}},"id":1}
+
+    var headers = [
+        {key:'x-calledmethod',value:'Soveschanie.Zapisat'},
+        {key:'x-originalmethodname',value:'0KHQvtCy0LXRidCw0L3QuNC1LtCX0LDQv9C40YHQsNGC0Yw='},
+        {key:'content-type',value:'application/json; charset=utf-8'}
+    ];
+    request('POST',url,body,headers,function(err,response){
+        callback(null,response); // Скорее всего id созданной конференции.
+    });
+}
