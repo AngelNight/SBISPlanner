@@ -48,6 +48,7 @@ var SpeechHandler = function() {
    };
 };
 
+// Cтарый метод. Работоспособность в текущий момент не гарантируется
 function addTask(text) {
     var getnumber = new XMLHttpRequest();
     var settext = new XMLHttpRequest();
@@ -75,7 +76,8 @@ function addTask(text) {
                 {"n":"ТипДокумента.ИмяОбъекта","t":"Строка"},
                 {"n":"ВызовИзБраузера","t":"Логическое"}]},
                 "ИмяМетода":"СлужЗап.Список"},"id":1});
-    findUserByName(name,function(response) {
+    getEmployee(name,function(err,response) {
+        response = response.result.d[0];
         if (response) {
             console.log(response[9]);
             empl = response[9];
@@ -198,3 +200,72 @@ function callUser(userId){
     var url = '/webrtc/static/window.html#room=' + createGUID() + '&toInvite={"faceId":'+userId+',"clientId":3}&video=true';
     window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
 }
+
+
+// XHR wrapper to do some request
+function request(method,url,body,headers,callback){
+    var xhr = new XMLHttpRequest();
+    xhr.open(method,url,true);
+    // Use browser cookie's
+    xhr.withCredentials = true;
+
+    if(Array.isArray(headers)) headers.forEach( function(item){
+        xhr.setRequestHeader(item.key,item.value);
+    });
+
+    xhr.send(JSON.stringify(body));
+
+    xhr.onreadystatechange = function() {
+    if (xhr.readyState != 4) return;
+    if (xhr.status != 200) {
+        callback(true,'Server response code:'+xhr.status+'\nResponse body'+xhr.responseText);
+        console.error(xhr.responseText);
+    } else {
+        var response = JSON.parse(xhr.responseText);
+        callback(false,response);
+    }
+
+    }
+}
+
+// Function to get employee list
+function getEmployee(name,callback) {
+    var url = getDomain() + 'service/';
+    var body = {
+        "jsonrpc": "2.0", "protocol": 4,
+        "method": "Staff.List",
+        "params": {
+            "Фильтр": {
+                "s": [{"n": "СтрокаПоиска", "t": "Строка"}],
+                "d": [name], "_type": "record"
+            },
+            "Сортировка": null, "Навигация": {
+                "s": [{"n": "ЕстьЕще", "t": "Логическое"},
+                    {"n": "РазмерСтраницы", "t": "Число целое"}, {"n": "Страница", "t": "Число целое"}],
+                "d": [true, 25, 0], "_type": "record"
+            }, "ДопПоля": []
+        }, "id": 1
+    };
+ 
+    var headers = [
+        {key:'x-calledmethod',value:'Staff.List'},
+        {key:'x-originalmethodname',value:'U3RhZmYuTGlzdA=='},
+        {key:'content-type',value:'application/json; charset=utf-8'}
+    ];
+ 
+    request('POST',url,body,headers,function(err,response){
+        if(err) console.err(response);
+        console.log(response);
+        if (response.result.n) {
+            console.log(name + ' найден.');
+            callback(null,response.result);
+            //Say('Сотрудник ' + name + ' найден');
+            //return response.name;
+        } else {
+            console.log('Сотрудник не найден.');
+            callback(response.result);
+            //Say('Сотрудник не найден.');
+            //return null;
+        }
+    });
+};
