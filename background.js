@@ -306,3 +306,33 @@ function callUser(userId){
     var url = '/webrtc/static/window.html#room=' + createGUID() + '&toInvite={"faceId":'+userId+',"clientId":3}&video=true';
     window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
 }
+
+
+// функция работает через консоль, однако не хочет работать в бэкграунд-треде. Возможно дело в правах, возможно я слишком хочу и скать что-то не заметил
+function notifyMe() {
+  // Let's check if the browser supports notifications
+  if (!("Notification" in window)) {
+    alert("This browser does not support system notifications");
+  }
+
+  // Let's check whether notification permissions have already been granted
+  else if (Notification.permission === "granted") {
+    // If it's okay let's create a notification
+    var notification = new Notification("Hi there!");
+  }
+
+  // Otherwise, we need to ask the user for permission
+  else if (Notification.permission !== 'denied') {
+    Notification.requestPermission(function (permission) {
+      // If the user accepts, let's create a notification
+      if (permission === "granted") {
+        var notification = new Notification("Hi there!");
+      }
+    });
+  }
+
+  // Finally, if the user has denied notifications and you 
+  // want to be respectful there is no need to bother them any more.
+}
+
+notifyMe()
