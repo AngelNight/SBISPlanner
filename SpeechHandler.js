@@ -394,7 +394,7 @@ function closeTask(id, type, comment) {
         "params": {
             "Документ": {
                 "s": [{"n": "Идентификатор", "t": "Строка"}, {"n": "ПервичныйКлюч", "t": "Число целое"}, {"n": "Этап", "t": "Выборка"}],
-                "d": [id.toString(), id,
+                "d": [id + "", id,
                 {
                     "s": [ 
                         {"n": "Действие","t": "Выборка"}
@@ -411,7 +411,7 @@ function closeTask(id, type, comment) {
                     "_type": "recordset",
                     "_mustRevive": true
                 }],
-                "_key": "3404817",
+                "_key": id + "",
                 "_mustRevive": true,
                 "_type": "record"
             }
