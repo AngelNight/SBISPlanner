@@ -378,3 +378,44 @@ function saveConference(confreneId,startTime,endTime,theme,callback){
         callback(null,response); // Скорее всего id созданной конференции.
     });
 }
+
+function closeTask(id, type, comment) {
+    var id = id;
+    var type = type;
+    var comment = comment;
+    var url = getDomain() + 'service/';
+    var xhr = new XMLHttpRequest();
+    var getnumber = new XMLHttpRequest();
+    getnumber.open('POST', url, true);
+    getnumber.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    var body = JSON.stringify({
+        "jsonrpc": "2.0", "protocol": 4,
+        "method": "СлужЗап.ВыполнитьДействие",
+        "params": {
+            "Документ": {
+                "s": [{"n": "Идентификатор", "t": "Строка"}, {"n": "ПервичныйКлюч", "t": "Число целое"}, {"n": "Этап", "t": "Выборка"}],
+                "d": [id.toString(), id,
+                {
+                    "s": [ 
+                        {"n": "Действие","t": "Выборка"}
+                        ],
+                    "d": [[ 
+                        {"s": [ 
+                                {"n": "Название", "t": "Строка"}, 
+                                {"n": "Комментарий", "t": "Строка"}
+                              ],
+                          "d": [[type, null]],
+                          "_type": "recordset",
+                          "_mustRevive": true
+                        }]],
+                    "_type": "recordset",
+                    "_mustRevive": true
+                }],
+                "_key": "3404817",
+                "_mustRevive": true,
+                "_type": "record"
+            }
+        }
+    });
+    getnumber.send(body);
+}
