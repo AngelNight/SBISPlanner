@@ -23,7 +23,8 @@
             "TasksCalendarAccessor.js",
             "Sorter.js",
             "app.js",
-            "Restructuring.js"
+            "Restructuring.js",
+            "Features.js"
          ]
       }
    ],
