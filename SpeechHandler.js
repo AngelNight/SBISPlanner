@@ -1,5 +1,10 @@
 var DEBUG = 0,
     allow = true;
+
+function CURRENT_TASK(){
+    return GLOBAL_TASKS[0];
+}
+
 // ключевые фразы помеченные знаком /*!DANGER!*/
 // не распознаются или распознаются с ошибками
 
@@ -10,9 +15,6 @@ var pageUrls = {
     'календарь':'calendar.html'
 };
 
-
-
-
 var SpeechHandler = function() {
    return {
       _handlers : {
@@ -20,6 +22,7 @@ var SpeechHandler = function() {
                  getTasks(function (err, tasks) {
                      sortTasks(err, tasks,
                          function (err, sorted_array) {
+                             cleanUpCalendar();
                              createDayList(err, sorted_array, null);
                              notifyCreateComplite();
                          })
@@ -29,10 +32,19 @@ var SpeechHandler = function() {
               getTasks(function (err, tasks) {
                   sortTasks(err, tasks,
                       function (err, sorted_array) {
+                          cleanUpCalendar();
                           createDayList(err, sorted_array, null);
                           notifyCreateComplite();
                       })
               })
+          },
+          'очисти календарь' : function (text) {
+              Say("Календарь очищен");
+              cleanUpCalendar();
+          },
+          'очистить календарь' : function (text) {
+              Say("Календарь очищен");
+              cleanUpCalendar();
           },
           'покажи задачи': function (text){
               var url = getDomain() + pageUrls['задачи'];
@@ -41,7 +53,69 @@ var SpeechHandler = function() {
           'покажи задаче': function (text){
               var url = getDomain() + pageUrls['задачи'];
               window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
+          },
+          'принять':function(){
+              Say('Задача добавлена на выполнение');
+              doSort();
+          },
+          'отклонить':function(){
+              Say('Задача отклонена');
+          },
+          'отклони':function(){
+              Say('Задача отклонена');
+          },
+          'что делать':function(){
+              notifyMesage();
+          },
+          'что делаешь':function(){
+              notifyMesage();
+          },
+          'сколько осталось':function(){
+              curDate = new Date();
+              var endTime = CURRENT_TASK();
+              console.log(endTime);
+              Say("До завершения задачи осталось 7 минут. Что с ней делать?");
+          },
+          'сделал':function(){
+              Say("Хорошая работа. Задача помечена выполненной");
+              console.log(CURRENT_TASK());
+              var taskID = CURRENT_TASK().task[1];
+              console.log(CURRENT_TASK());
+              console.log(taskID);
+              closeTask(taskID,"Выполнено", "Задача закрыта");
+          },
+          'не успел':function(){
+              Say("Добавлено 20 минут. Проиятной работы");
+          },
+          'не успеваю':function(){
+              Say("Добавлено 20 минут. Проиятной работы");
+          },
+          'не актуальна':function(){
+              Say("Задача помечена выполненной");
+              //Почирикать тут
+          },
+          'не актуально':function(){
+              Say("Задача помечена выполненной");
+              //Почирикать тут
+          },
+          'позвони':function(){
+              Say("Звоним автору задачи");
+              callUser(121);
+          },
+          'созвать совещание':function(){
+              var date = new Date();
+              var hours = date.getHours();
+              var minutes = date.getMinutes();
+
+              if(minutes > 30) { minutes = 00; hours++; }
+              else { minutes += 30; }
+              Say("Создаю совещание с автором задачи. Совещание назначено на: "+hours+" "+minutes);
+          },
+          'тест':function(){
+              addConference("Пучкова Алла","Тема совещания");
+
           }
+
       },
       _log: function(text){
          console.log(text);
@@ -511,7 +585,6 @@ function workWithCurrentTask(task_array) {
     }
 }
 //function(task,"Через пять минут приступите к задаче ")
-
 function closeTask(id, type, comment) {
     var id = id;
     var type = type;
@@ -524,6 +597,42 @@ function closeTask(id, type, comment) {
     var body = JSON.stringify({
         "jsonrpc": "2.0", "protocol": 4,
         "method": "СлужЗап.ВыполнитьДействие",
+        "params": {
+            "Документ": {
+                "s": [{"n": "Идентификатор", "t": "Строка"}, {"n": "ПервичныйКлюч", "t": "Число целое"}, {"n": "Этап", "t": "Выборка"}],
+                "d": [id + "", id,
+                    {
+                        "s": [
+                            {"n": "Действие", "t": "Выборка"}],
+                        "d": [[
+                            {
+                                "s": [{"n": "Название", "t": "Строка"}],
+                                "d": [[type + ""]],
+                                "_type": "recordset"
+                            },]],
+                        "_type": "recordset"
+                    },],
+                "_key": id+ "",
+                "_type": "record"
+            }
+        }
+    });
+    getnumber.send(body);
+}
+
+/*
+function closeTask(id, type, comment) {
+    var id = id;
+    var type = type;
+    var comment = comment;
+    var url = getDomain() + 'service/';
+    var xhr = new XMLHttpRequest();
+    var getnumber = new XMLHttpRequest();
+    getnumber.open('POST', url, true);
+    getnumber.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    var body = JSON.stringify({
+        "jsonrpc": "2.0", "protocol": 4,
+            "method": "СлужЗап.ВыполнитьДействие",
         "params": {
             "Документ": {
                 "s": [{"n": "Идентификатор", "t": "Строка"}, {"n": "ПервичныйКлюч", "t": "Число целое"}, {"n": "Этап", "t": "Выборка"}],
@@ -551,11 +660,12 @@ function closeTask(id, type, comment) {
         }
     });
     getnumber.send(body);
+}*/
+
+function notifyMesage(){
+    const MAX_TASK_LENGTH = 80;
+    var textmessage = CURRENT_TASK().task[4].trim().replaceAll(/<[^>]*>/, "").slice(0,MAX_TASK_LENGTH);
+    console.log(textmessage);
+    Say("Получена новая задача: "+textmessage+". Что будете делать?");
 }
 
-var pollingTasksByTime = function(){
-    GLOBAL_TASKS.forEach( function (item){
-        if( new Date(item.endTime).getTime() - new Date() == 5*1000*60 ) ;
-        //GLOBAL_TASKS
-    })
-}
