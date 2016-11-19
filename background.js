@@ -112,7 +112,7 @@ function doSort() {
     getTasks(function (err, tasks) {
         sortTasks(err, tasks,
             function (err, sorted_array) {
-                createDayList(err, sorted_array, null);
+                createDayList(err, sorted_array, new Date());
             })
     })
 }
@@ -129,9 +129,9 @@ function formatDate(date) {
     return [year, month, day].join('-');
 }
 
-function createDayList(err, tasks, startDate) {
-    if (startDate == null)
-        startDate = new Date();
+function createDayList(err, tasks, date) {
+    var startDate = (date == null) ? new Date() : date;
+    var day = formatDate(startDate);
     if (err) console.log(err);
     var hoursStart = 9;
     var hoursEnd = 10;
@@ -146,16 +146,21 @@ function createDayList(err, tasks, startDate) {
         var stringEndTime = ((hoursEnd < 10 ) ? "0" + hoursEnd : hoursEnd.toString()) + ":" +
             ((minutesEnd < 10 ) ? "0" + minutesEnd : minutesEnd.toString()) + ":00+03";
 
-        addTasksInCalendar(task[1], formatDate(startDate), stringStartTime, stringEndTime);
+        addTasksInCalendar(task[1], formatDate(day), stringStartTime, stringEndTime);
 
         hoursStart = hoursEnd;
         hoursEnd++;
 
         if (hoursEnd > 17) {
-            startDate.setMonth(startDate.getMonth() + 1)
-        };
+            startDate.setMonth(parseInt(day.split("-")[1]) - 1, parseInt(day.split("-")[2]) + 1);
+            day = formatDate(startDate);
+            hoursStart = 9;
+            hoursEnd = 10;
+            minutesStart = 0;
+            minutesEnd = 0;
+        }
 
-        console.log(startDate)
+        console.log(day)
     })
 }
 
