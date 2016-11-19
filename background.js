@@ -18,6 +18,54 @@ chrome.runtime.onMessage.addListener(function (utterance, sender, callback) {
 
 });
 
+// FirstBy - a little lib to sort arrays by multiply fields
+firstBy = (function () {
+
+    function identity(v) {
+        return v;
+    }
+
+    function ignoreCase(v) {
+        return typeof(v) === "string" ? v.toLowerCase() : v;
+    }
+
+    function makeCompareFunction(f, opt) {
+        opt = typeof(opt) === "number" ? {direction: opt} : opt || {};
+        if (typeof(f) != "function") {
+            var prop = f;
+            // make unary function
+            f = function (v1) {
+                return !!v1[prop] ? v1[prop] : "";
+            }
+        }
+        if (f.length === 1) {
+            // f is a unary function mapping a single item to its sort score
+            var uf = f;
+            var preprocess = opt.ignoreCase ? ignoreCase : identity;
+            f = function (v1, v2) {
+                return preprocess(uf(v1)) < preprocess(uf(v2)) ? -1 : preprocess(uf(v1)) > preprocess(uf(v2)) ? 1 : 0;
+            }
+        }
+        if (opt.direction === -1)return function (v1, v2) {
+            return -f(v1, v2)
+        };
+        return f;
+    }
+
+    function tb(func, opt) {
+        var x = typeof(this) == "function" ? this : false;
+        var y = makeCompareFunction(func, opt);
+        var f = x ? function (a, b) {
+            return x(a, b) || y(a, b);
+        }
+            : y;
+        f.thenBy = tb;
+        return f;
+    }
+
+    return tb;
+})();
+
 function getDomain() {
     return 'https://' + window.location.hostname + '/';
 }
@@ -106,6 +154,8 @@ function sortTasks(err, tasks, callback) {
         )
     );
 }
+
+var GLOBAL_TASKS =[];
 
 // Пример сортировки данных и вывода их в консоль.
 function doSort() {
@@ -378,33 +428,3 @@ function callUser(userId) {
     var url = '/webrtc/static/window.html#room=' + createGUID() + '&toInvite={"faceId":' + userId + ',"clientId":3}&video=true';
     window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
 }
-
-
-// функция работает через консоль, однако не хочет работать в бэкграунд-треде. Возможно дело в правах, возможно я слишком хочу и скать что-то не заметил
-function notifyMe() {
-    // Let's check if the browser supports notifications
-    if (!("Notification" in window)) {
-        alert("This browser does not support system notifications");
-    }
-
-    // Let's check whether notification permissions have already been granted
-    else if (Notification.permission === "granted") {
-        // If it's okay let's create a notification
-        var notification = new Notification("Hi there!");
-    }
-
-    // Otherwise, we need to ask the user for permission
-    else if (Notification.permission !== 'denied') {
-        Notification.requestPermission(function (permission) {
-            // If the user accepts, let's create a notification
-            if (permission === "granted") {
-                var notification = new Notification("Hi there!");
-            }
-        });
-    }
-
-    // Finally, if the user has denied notifications and you
-    // want to be respectful there is no need to bother them any more.
-}
-
-notifyMe()
