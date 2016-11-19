@@ -18,6 +18,8 @@ chrome.runtime.onMessage.addListener(function (utterance, sender, callback) {
 
 });
 
+var CALENDAR_IDS = [];
+
 // FirstBy - a little lib to sort arrays by multiply fields
 firstBy = (function () {
 
@@ -180,6 +182,12 @@ function formatDate(date) {
 }
 
 function createDayList(err, tasks, date) {
+    cleanUpCalendar();
+    CALENDAR_IDS.forEach(function (item) {
+        deleteTaskFromCalendar(item);
+    })
+
+    CALENDAR_IDS = [];
 
     var startDate = (date == null) ? new Date() : date;
     var day = formatDate(startDate);

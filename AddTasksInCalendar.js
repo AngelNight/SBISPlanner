@@ -1,4 +1,3 @@
-var CALENDAR_IDS = [];
 
 function addTasksInCalendar(taskId ,date, startDate, endDate) {
     var arrayDataTask_D = [];
@@ -89,26 +88,29 @@ function cleanUpCalendar() {
 
 function deleteTaskFromCalendar(taskID) {
     jQuery.ajax({
-        url:'https://fix-online.sbis.ru/service/',
+        url: 'https://fix-online.sbis.ru/service/',
         data: JSON.stringify({
-            id:1,
+            id: 1,
             jsonrpc: "2.0",
             method: "Работа.Удалить",
-            params:{
+            params: {
                 ИдО: taskID
             },
             protocol: 4
-        }),success: function(res){console.log(res);},dataType:"json",type:"post",contentType: 'application/json; charset=utf-8'})
+        }), success: function (res) {
+            console.log(res);
+        }, dataType: "json", type: "post", contentType: 'application/json; charset=utf-8'
+    })
 }
 
-function getTimeInterval(startDate, endDate){
+function getTimeInterval(startDate, endDate) {
     var hoursInterval = parseInt(endDate.split(":")[0]) - parseInt(startDate.split(":")[0]);
-    if (hoursInterval < 10){
+    if (hoursInterval < 10) {
         hoursInterval = "0" + hoursInterval;
     }
 
     var minutesInterval = parseInt(endDate.split(":")[1]) - parseInt(startDate.split(":")[1]);
-    if (minutesInterval < 10){
+    if (minutesInterval < 10) {
         minutesInterval = "0" + minutesInterval;
     }
 
