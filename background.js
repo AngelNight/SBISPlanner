@@ -19,6 +19,7 @@ chrome.runtime.onMessage.addListener(function (utterance, sender, callback) {
 });
 
 var CALENDAR_IDS = [];
+var GLOBAL_TASKS = [];
 
 // FirstBy - a little lib to sort arrays by multiply fields
 firstBy = (function () {
@@ -68,10 +69,15 @@ firstBy = (function () {
     return tb;
 })();
 
-function getDomain() {
-    return 'https://' + window.location.hostname + '/';
-}
+function getDomain(){
+    var url = jQuery.trim(window.location.href);
+    if(url.search(/^https?\:\/\//) != -1)
+        url = url.match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i, "");
+    else
+        url = url.match(/^([^\/?#]+)(?:[\/?#]|$)/i, "");
 
+    return 'https://'+url[1]+'/';
+}
 // XHR wrapper to do some request
 function request(method, url, body, headers, callback) {
     var xhr = new XMLHttpRequest();
@@ -196,7 +202,7 @@ function createDayList(err, tasks, date) {
     var hoursEnd = 10;
     var minutesStart = 0;
     var minutesEnd = 0;
-
+    GLOBAL_TASKS = [];
     tasks.forEach(function (task, index) {
         var stringStartTime = ((hoursStart < 10 ) ? "0" + hoursStart : hoursStart.toString()) + ":" +
             ((minutesStart < 10 ) ? "0" + minutesStart : minutesStart.toString()) + ":00+03";
@@ -205,6 +211,8 @@ function createDayList(err, tasks, date) {
             ((minutesEnd < 10 ) ? "0" + minutesEnd : minutesEnd.toString()) + ":00+03";
 
         addTasksInCalendar(task[1], formatDate(day), stringStartTime, stringEndTime);
+
+        GLOBAL_TASKS.push({task:task, start:stringStartTime, end:stringEndTime});
 
         hoursStart = hoursEnd;
         hoursEnd++;
@@ -436,3 +444,13 @@ function callUser(userId) {
     var url = '/webrtc/static/window.html#room=' + createGUID() + '&toInvite={"faceId":' + userId + ',"clientId":3}&video=true';
     window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
 }
+
+
+var pollingTasksByTime = function(){
+    GLOBAL_TASKS.forEach( function (item){
+        if( new Date(item.endTime).getTime() - new Date() == 5*1000*60 ) ;
+            //GLOBAL_TASKS
+    })
+}
+
+

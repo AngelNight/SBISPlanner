@@ -13,11 +13,11 @@ function Say(utterance, callback) {
 
 }
 
-var bird = document.getElementById('logoCompany');
+var bird = document.getElementById('logoSbis');
 if(bird){
    bird.className += 'bird icon-32 icon-Microphone icon-primary';
    bird.title = 'SBIS Planner';
-   document.getElementById('logoCompanyLink').href="#";
+   document.getElementById('logoSbis').href="#";
 
    // Google Web Speech API
    var rec = new webkitSpeechRecognition(),

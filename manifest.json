@@ -19,6 +19,7 @@
          "js": [
             "help/jquery-1.11.3.min.js",
             "SpeechHandler.js",
+            "background.js",
             "AddTasksInCalendar.js",
             "app.js",
             "background.js",

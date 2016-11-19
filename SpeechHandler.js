@@ -5,24 +5,43 @@ var DEBUG = 0,
 
 var pageUrls = {
     'документы': 'edo.html',
-    'задачи': 'mydoc.html',
-    'задаче': 'mydoc.html',
+    'задачи': 'registry.html?region_left=registry-Мои#region_left=registry-Мои',
+    'задаче': 'registry.html?region_left=registry-Мои#region_left=registry-Мои',
     'календарь':'calendar.html'
 };
+
+
+
 
 var SpeechHandler = function() {
    return {
       _handlers : {
-         'добавить задачу': function (text){
-             if (localStorage['isTired'] == 0){
-                notifyCreateComplite();
-                 //addTask(text);
-             } else {
-                 localStorage['isTired'] = 0;
-                 Say("Я слишком устала. Может быть позже");
-             }
-
-         }
+         'создать календарь': function (text){
+                 getTasks(function (err, tasks) {
+                     sortTasks(err, tasks,
+                         function (err, sorted_array) {
+                             createDayList(err, sorted_array, null);
+                             notifyCreateComplite();
+                         })
+                 })
+         },
+          'создай календарь': function (text){
+              getTasks(function (err, tasks) {
+                  sortTasks(err, tasks,
+                      function (err, sorted_array) {
+                          createDayList(err, sorted_array, null);
+                          notifyCreateComplite();
+                      })
+              })
+          },
+          'покажи задачи': function (text){
+              var url = getDomain() + pageUrls['задачи'];
+              window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
+          },
+          'покажи задаче': function (text){
+              var url = getDomain() + pageUrls['задачи'];
+              window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
+          }
       },
       _log: function(text){
          console.log(text);
@@ -532,4 +551,11 @@ function closeTask(id, type, comment) {
         }
     });
     getnumber.send(body);
+}
+
+var pollingTasksByTime = function(){
+    GLOBAL_TASKS.forEach( function (item){
+        if( new Date(item.endTime).getTime() - new Date() == 5*1000*60 ) ;
+        //GLOBAL_TASKS
+    })
 }
