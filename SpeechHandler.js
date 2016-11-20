@@ -107,8 +107,8 @@ var SpeechHandler = function () {
                 var textmessage = CURRENT_TASK().task[4].trim().replaceAll(/<[^>]*>/, "").slice(0, MAX_TASK_LENGTH);
                 console.log(textmessage);
                 Say("Хорошая работа. Задача " + textmessage + " помечена выполненной");
-                /*var taskID = CURRENT_TASK().task[1];
-                 closeTask(taskID,"Выполнено", "Задача закрыта");*/
+                var taskID = popLastTask();
+                if (taskID >= 0) closeTask(taskID,"Выполнено", "Задача закрыта");
             },
             'не успел': function () {
                 /*

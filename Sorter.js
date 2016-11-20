@@ -1,4 +1,3 @@
-localStorage.setItem("CALENDAR_IDS", [])
 // FirstBy - a little lib to sort arrays by multiply fields
 firstBy = (function () {
 
@@ -139,6 +138,15 @@ function doSort() {
     })
 }
 
+function popLastTask() {
+    var tasks = (localStorage.getItem("TASK_IDS") == "") ? [-1] : localStorage.getItem("TASK_IDS").split(",").map(function (el) {
+        return parseInt(el);
+    });
+    var res = parseInt(tasks.shift());
+    localStorage.setItem("TASK_IDS", tasks);
+    return res;
+}
+
 function formatDate(date) {
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
@@ -164,6 +172,8 @@ function createDayList(err, tasks, date) {
 
     localStorage.setItem("CALENDAR_IDS", store);
 
+    localStorage.setItem("TASK_IDS", []);
+
     var startDate = (date == null) ? new Date() : date;
     var day = formatDate(startDate);
     if (err) console.log(err);
@@ -183,6 +193,14 @@ function createDayList(err, tasks, date) {
             minutesStart = 0;
             minutesEnd = 0;
         }
+
+        var tasks = (localStorage.getItem("TASK_IDS") == "") ? [] : localStorage.getItem("TASK_IDS").split(",").map(function (el) {
+            return parseInt(el);
+        });
+
+        tasks.push(task[1]);
+
+        localStorage.setItem("TASK_IDS", tasks);
 
         var stringStartTime = ((hoursStart < 10 ) ? "0" + hoursStart : hoursStart.toString()) + ":" +
             ((minutesStart < 10 ) ? "0" + minutesStart : minutesStart.toString()) + ":00+03";
