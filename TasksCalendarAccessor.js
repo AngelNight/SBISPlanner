@@ -73,8 +73,8 @@ function addTasksInCalendar(taskId, date, startDate, endDate) {
                     var store = (localStorage.getItem("CALENDAR_IDS") == "")? []: localStorage.getItem("CALENDAR_IDS").split(",").map(function (el) {
                         return parseInt(el);
                     });
+                    console.log(store);
                     store.push(res.result);
-                    console.log(res.result);
                     localStorage.setItem("CALENDAR_IDS", store);
                 }, dataType: "json", type: "post", contentType: 'application/json; charset=utf-8'
             })

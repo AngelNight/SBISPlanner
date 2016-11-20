@@ -51,24 +51,38 @@ firstBy = (function () {
 // Function to get task list
 function getTasks(callback) {
     var url = getDomain() + 'service/';
-    var body = {
-        "jsonrpc": "2.0", "protocol": 4,
-        "method": "СвязьПапок.ДокументыВПапке",
-        "params": {
-            "Фильтр": {
-                "s": [{"n": "ВключитьСписокИсполнителей", "t": "Логическое"},
-                    {"n": "ВнешняяИерархия", "t": "Логическое"},
-                    {"n": "ПапкаДокументов", "t": "Строка"}, {"n": "ПоказИерархии", "t": "Логическое"},
-                    {"n": "ПростыеВД", "t": "Логическое"}, {"n": "РассчитатьФото", "t": "Логическое"}],
-                "d": [true, true, "", false, true, true], "_type": "record"
-            },
-            "Сортировка": null, "Навигация": {
-                "s": [{"n": "ЕстьЕще", "t": "Логическое"},
-                    {"n": "РазмерСтраницы", "t": "Число целое"}, {"n": "Страница", "t": "Число целое"}],
-                "d": [true, 25, 0], "_type": "record"
-            }, "ДопПоля": []
-        }, "id": 1
-    };
+
+
+    var body =
+            {
+                "jsonrpc": "2.0", "protocol": 4,
+                "method": "СвязьПапок.ДокументыВПапке",
+                "params": {
+                    "Фильтр": {
+                        "s": [{"n": "ВключитьСписокИсполнителей", "t": "Логическое"}, {
+                            "n": "ВнешняяИерархия",
+                            "t": "Логическое"
+                        }, {"n": "ПапкаДокументов", "t": "Строка"}, {
+                            "n": "ПоказИерархии",
+                            "t": "Логическое"
+                        }, {"n": "ПростыеВД", "t": "Логическое"}, {"n": "РассчитатьФото", "t": "Логическое"}],
+                        "d": [true, true, "", false, true, true],
+                        "_type": "record"
+                    }
+                    ,
+                    "Сортировка": null, "Навигация": {
+                        "s": [{"n": "ЕстьЕще", "t": "Логическое"}, {"n": "РазмерСтраницы", "t": "Число целое"}, {
+                            "n": "Страница",
+                            "t": "Число целое"
+                        }], "d": [true, 25, 0], "_type": "record"
+                    }
+                    ,
+                    "ДопПоля": []
+                }
+                ,
+                "id": 1
+            }
+        ;
 
     var headers = [
         {key: 'x-calledmethod', value: 'SvyazPapok.DokumentyVPapke'},
@@ -140,7 +154,7 @@ function formatDate(date) {
 function createDayList(err, tasks, date) {
     cleanUpCalendar();
 
-    var store = (localStorage.getItem("CALENDAR_IDS") == "")? []: localStorage.getItem("CALENDAR_IDS").split(",").map(function (el) {
+    var store = (localStorage.getItem("CALENDAR_IDS") == "") ? [] : localStorage.getItem("CALENDAR_IDS").split(",").map(function (el) {
         return parseInt(el);
     });
 
@@ -153,7 +167,7 @@ function createDayList(err, tasks, date) {
     var startDate = (date == null) ? new Date() : date;
     var day = formatDate(startDate);
     if (err) console.log(err);
-    var hoursStart = startDate.getHours();
+    var hoursStart = startDate.getHours() + 1;
     var hoursEnd = hoursStart + 1;
     var minutesStart = 0;
     var minutesEnd = 0;
