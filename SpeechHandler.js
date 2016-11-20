@@ -95,6 +95,14 @@ var SpeechHandler = function () {
                 var url = getDomain() + pageUrls['задачи'];
                 window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
             },
+            'покажи календарь': function (text) {
+                var url = getDomain() + pageUrls['календарь'];
+                window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
+            },
+            'показать календарь': function (text) {
+                var url = getDomain() + pageUrls['календарь'];
+                window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
+            },
             'принять': function () {
                 /*
                  WARNING! ERROR IN THIS CASE!
@@ -116,7 +124,8 @@ var SpeechHandler = function () {
                 accessMessage();
             },
             'сколько осталось': function () {
-                var minute = Math.round(5 + Math.random() * (9 - 5));
+                var minute = 60 - new Date().getMinutes();
+
                 Say("До завершения задачи осталось " + minute + " минут. Что с ней делать?");
             },
             'сделал': function () {
@@ -179,12 +188,20 @@ var SpeechHandler = function () {
                     minutes += 30;
                 }
                 Say("Создаю совещание с автором задачи. Совещание назначено на: " + hours + " " + minutes);
+                var url = getDomain() + 'work.html?region_left=work_meetings#region_left=work_meetings/';
+                window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
             },
             'опиши себя тремя словами': function () {
                 Say("Подключил, добавил, победил");
             },
             'опиши себя в 3 словах': function () {
                 Say("Подключил, добавил, победил");
+            },
+            'твой любимый фильм': function () {
+                Say("Про тензор. Спойлер - всё будет сбис.");
+            },
+            'мой любимый фильм': function () {
+                Say("Про тензор. Спойлер - всё будет сбис.");
             },
             'тест': function () {
                 closeTask(popLastTask(), 'Выполнено', 'Задача выполнена');
@@ -493,7 +510,7 @@ function saveConference(confreneId, startTime, endTime, theme, callback) {
 function notifyCreateComplite() {
     rec.isRunning = false;
     rec.stop();
-    Say("Я создала для тебя календарь");
+    Say("Я распланировала твои задачи, дорогой");
     var url = getDomain() + pageUrls['календарь'];
     window.open(url, '', 'width=1110,height=832,top=52,left=405,target=window');
 
