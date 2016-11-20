@@ -162,6 +162,9 @@ function formatDate(date) {
 function createDayList(err, tasks, date) {
     cleanUpCalendar();
 
+    if (localStorage.getItem("CALENDAR_IDS") == null)
+        localStorage.setItem("CALENDAR_IDS", []);
+
     var store = (localStorage.getItem("CALENDAR_IDS") == "") ? [] : localStorage.getItem("CALENDAR_IDS").split(",").map(function (el) {
         return parseInt(el);
     });
