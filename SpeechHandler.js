@@ -59,6 +59,26 @@ var SpeechHandler = function () {
                         })
                 })
             },
+            'построй календарь': function (text) {
+                getTasks(function (err, tasks) {
+                    sortTasks(err, tasks,
+                        function (err, sorted_array) {
+                            cleanUpCalendar();
+                            createDayList(err, sorted_array, null);
+                            notifyCreateComplite();
+                        })
+                })
+            },
+            'построить календарь': function (text) {
+                getTasks(function (err, tasks) {
+                    sortTasks(err, tasks,
+                        function (err, sorted_array) {
+                            cleanUpCalendar();
+                            createDayList(err, sorted_array, null);
+                            notifyCreateComplite();
+                        })
+                })
+            },
             'очисти календарь': function (text) {
                 Say("Календарь очищен");
                 cleanUpCalendar();
@@ -108,7 +128,7 @@ var SpeechHandler = function () {
                 console.log(textmessage);
                 Say("Хорошая работа. Задача " + textmessage + " помечена выполненной");
                 var taskID = popLastTask();
-                if (taskID >= 0) closeTask(taskID,"Выполнено", "Задача закрыта");
+                if (taskID >= 0) closeTask(taskID, "Выполнено", "Задача закрыта");
             },
             'не успел': function () {
                 /*
@@ -159,6 +179,16 @@ var SpeechHandler = function () {
                     minutes += 30;
                 }
                 Say("Создаю совещание с автором задачи. Совещание назначено на: " + hours + " " + minutes);
+            },
+            'опиши себя тремя словами': function () {
+                Say("Подключил, добавил, победил");
+            },
+            'опиши себя в 3 словах': function () {
+                Say("Подключил, добавил, победил");
+            },
+            'тест': function () {
+                closeTask(popLastTask(), 'Выполнено', 'Задача выполнена');
+                Say("удалила");
             }
         },
         _log: function (text) {
